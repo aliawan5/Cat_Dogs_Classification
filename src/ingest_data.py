@@ -6,7 +6,9 @@ logger = logging_setup
 
 
 class ingest_data:
-    def __init__(self, img_width, img_height, batch_size) -> None:
+    def __init__(self, img_width, img_height, batch_size, train_dir, val_dir) -> None:
+        self.train_dir = train_dir
+        self.val_dir = val_dir
         self.img_width = img_width
         self.img_height = img_height
         self.batch_size = batch_size
@@ -32,4 +34,22 @@ class ingest_data:
             raise e
 
     def process_generator(self):
-        pass
+        try:
+            logger.info("Start Processing Generator")
+
+            self.train_dataset = self.train_generator.from_directory(
+                self.train_dir,
+                traget_size = (self.img_width, self.img_height),
+                batch_size = self.batch_size,
+                class_mode = 'binary'
+                )
+            
+            self.val_dataset = self.val_generator.from_directory(
+                self.val_dir,
+                target_size = (self.img_width, self.img_height),
+                batch_size = self.batch_size,
+                class_mode = 'binary'
+            )
+        except Exception as e:
+            logger.error(f"Error in Processing generator")
+            raise e
