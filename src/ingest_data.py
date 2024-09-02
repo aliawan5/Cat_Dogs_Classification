@@ -1,8 +1,8 @@
 import tensorflow
-from tensorflow.keras.preprocessing.image import DataImageGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from src.utils import log_time, logging_setup
 
-logger = logging_setup
+logger = logging_setup()
 
 
 class ingest_data:
@@ -18,7 +18,7 @@ class ingest_data:
     def build_generator(self):
         try:
             logger.info("Start building generator")
-            self.train_generator = DataImageGenerator(
+            self.train_generator = ImageDataGenerator(
                 rescale = 1./255,
                 rotation_range = 20,
                 width_shift_range = 0.2,
@@ -27,7 +27,7 @@ class ingest_data:
                 horizontal_flip = True,
                 fill_mode = 'nearest'
             )
-            self.val_generator = DataImageGenerator(rescale = 1./255)
+            self.val_generator = ImageDataGenerator(rescale = 1./255)
             logger.info("Image Generator build successfully")
         except Exception as e:
             logger.error(f"Error while building generator: {str(e)}")
@@ -39,7 +39,7 @@ class ingest_data:
 
             self.train_dataset = self.train_generator.from_directory(
                 self.train_dir,
-                traget_size = (self.img_width, self.img_height),
+                target_size = (self.img_width, self.img_height),
                 batch_size = self.batch_size,
                 class_mode = 'binary'
                 )
@@ -50,6 +50,7 @@ class ingest_data:
                 batch_size = self.batch_size,
                 class_mode = 'binary'
             )
+            logger.info("Generator processed successfully")
         except Exception as e:
             logger.error(f"Error in Processing generator")
             raise e
