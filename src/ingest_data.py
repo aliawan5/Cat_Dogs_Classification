@@ -5,10 +5,9 @@ from src.utils import log_time, logging_setup
 logger = logging_setup()
 
 
-class ingest_data:
-    def __init__(self, img_width, img_height, batch_size, train_dir, val_dir) -> None:
-        self.train_dir = train_dir
-        self.val_dir = val_dir
+class IngestData:
+    def __init__(self, img_width, img_height, batch_size, data_path) -> None:
+        self.data_path = data_path
         self.img_width = img_width
         self.img_height = img_height
         self.batch_size = batch_size
@@ -25,7 +24,8 @@ class ingest_data:
                 height_shift_range = 0.2,
                 zoom_range = 0.2,
                 horizontal_flip = True,
-                fill_mode = 'nearest'
+                fill_mode = 'nearest',
+                validation_split = 0.2
             )
             self.val_generator = ImageDataGenerator(rescale = 1./255)
             logger.info("Image Generator build successfully")
@@ -37,20 +37,28 @@ class ingest_data:
         try:
             logger.info("Start Processing Generator")
 
-            self.train_dataset = self.train_generator.from_directory(
-                self.train_dir,
+            self.train_dataset = self.train_generator.flow_from_directory(
+                self.data_path,
                 target_size = (self.img_width, self.img_height),
                 batch_size = self.batch_size,
-                class_mode = 'binary'
+                class_mode = 'binary',
+                subset = 'training'
                 )
             
-            self.val_dataset = self.val_generator.from_directory(
-                self.val_dir,
+            self.val_dataset = self.val_generator.flow_from_directory(
+                self.data_path,
                 target_size = (self.img_width, self.img_height),
                 batch_size = self.batch_size,
-                class_mode = 'binary'
+                class_mode = 'binary',
+                subset = 'validation'
             )
+            # sample_train = next(self.train_dataset)
+            # logger.info(f"Sample batch from train_dataset: {sample_train}")
+
+            # sample_val = next(self.val_dataset)
+            # logger.info(f"Sample batch from train_dataset: {sample_val}")
+
             logger.info("Generator processed successfully")
         except Exception as e:
-            logger.error(f"Error in Processing generator")
+            logger.error(f"Error in Processing generator: {str(e)}")
             raise e

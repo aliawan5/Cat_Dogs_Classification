@@ -22,7 +22,10 @@ class Evaluate:
             self.image_array = np.expand_dims(self.image_array, 0)
 
             prediction = self.model.predict(self.image_array)
-            self.prediction_class = np.argmax(prediction[0])
+            if self.num_classes == 1:
+                self.prediction_class = 1 if prediction[0][0] > 0.5 else 0
+            else:
+                self.prediction_class = np.argmax(prediction[0])
 
             logger.info("Image successfully predicted")
         except Exception as e:
